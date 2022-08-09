@@ -74,8 +74,20 @@
 		{% endfor %}
 	</div>
 </section>
+<button class="btn btn-danger btn-lg" data-id={{venue.id}}>delete</button>
+
 
 <a href="/venues/{{ venue.id }}/edit"><button class="btn btn-primary btn-lg">Edit</button></a>
+<script>
+	const deleteBtn = document.querySelector('.btn-danger')
+	deleteBtn.addEventListener('click', (e) =>{
+		id=e.target.dataset.id
+		fetch(`/venues/${id}`,{
+			method:'DELETE'
+		}).catch(e => console.log(e))
+		location.replace('/')
+	})
+</script>
 
 {% endblock %}
 
