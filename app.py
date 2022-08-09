@@ -220,17 +220,17 @@ def show_venue(venue_id):
   pastShowData = []
   for show in upcoming_shows:
     upcomingshowData.append({
-      "artist_id": show.Artist_id,
+      "artist_id": show.Artist.id,
       "artist_name": show.Artist.name,
       "artist_image_link": show.Artist.image_link,
-      "start_time": show.start_time
+      "start_time": str(show.start_time)
     })
   for show in past_shows:
     pastShowData.append({
-      "artist_id": show.Artist_id,
+      "artist_id": show.Artist.id,
       "artist_name": show.Artist.name,
       "artist_image_link": show.Artist.image_link,
-      "start_time": show.start_time
+      "start_time": str(show.start_time)
     })
   d = {
     "id": venue.id,
@@ -364,7 +364,7 @@ def show_artist(artist_id):
       "venue_id":venue.id,
       "venue_name":venue.name,
       "venue_image_link":venue.image_link,
-      "start_time":show.start_time
+      "start_time":str(show.start_time)
     })
 
   for show in past_shows:
@@ -373,7 +373,7 @@ def show_artist(artist_id):
       "venue_id":venue.id,
       "venue_name":venue.name,
       "venue_image_link":venue.image_link,
-      "start_time":show.start_time
+      "start_time":str(show.start_time)
     })
 
   artist_data={
@@ -549,44 +549,19 @@ def create_artist_submission():
 @app.route('/shows')
 def shows():
   # displays list of shows at /shows
+  showsList= Show.query.all()
+  sdata=[]
+  for show in showsList:
+    sdata.append({
+      "venue_id": show.venue_id,
+      "venue_name": show.Venue.name,
+      "artist_id": show.Artist.id,
+      "artist_name":show.Artist.name,
+      "artist_image_link": show.Artist.image_link,
+      "start_time": str(show.start_time)
+    })
   # TODO: replace with real venues data.
-  data=[{
-    "venue_id": 1,
-    "venue_name": "The Musical Hop",
-    "artist_id": 4,
-    "artist_name": "Guns N Petals",
-    "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-    "start_time": "2019-05-21T21:30:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 5,
-    "artist_name": "Matt Quevedo",
-    "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-    "start_time": "2019-06-15T23:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-01T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-08T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-15T20:00:00.000Z"
-  }]
-  return render_template('pages/shows.html', shows=data)
+  return render_template('pages/shows.html', shows=sdata)
 
 @app.route('/shows/create')
 def create_shows():
@@ -598,11 +573,26 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # TODO: insert form data as a new Show record in the db, instead
+  error=False
+  try:
+    newShow=Show()
+    newShow.artist_id = request.form.get('artist_id')
+    newShow.venue_id = request.form.get('venue_id')
+    newShow.start_time = request.form.get('start_time')
+    db.session.add(newShow)
+    db.session.commit()
+    flash('Show was successfully listed!')
+  except:
+    error=True
+    db.session.rollback()
+    print(sys.exc_info())
+    flash('An error occurred. Show could not be listed.')
+  finally:
+    db.session.close()
 
   # on successful db insert, flash success
-  flash('Show was successfully listed!')
   # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
+  # e.g., 
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
