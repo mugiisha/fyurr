@@ -257,25 +257,24 @@ def show_artist(artist_id):
   # shows the artist page with the given artist_id
   # TODO: replace with real artist data from the artist table, using artist_id
   artist=Artist.query.get(artist_id)
-  past_shows=Show.query.filter(Show.artist_id==artist_id,Show.start_time<datetime.now()).all()
-  upcoming_shows=Show.query.filter(Show.artist_id==artist_id,Show.start_time>datetime.now()).all()
+  past_shows=Show.query.join(Venue).filter(Show.artist_id == artist_id).filter(Show.start_time<datetime.now()).all()
+  upcoming_shows=Show.query.join(Venue).filter(Show.artist_id == artist_id).filter(Show.start_time>datetime.now()).all()
   past_shows_data=[]
   upcoming_shows_data=[]
   for show in upcoming_shows:
     venue=Venue.query.get(show.venue_id)
     upcoming_shows_data.append({
-      "venue_id":venue.id,
-      "venue_name":venue.name,
-      "venue_image_link":venue.image_link,
+      "venue_id":show.Venue.id,
+      "venue_name":show.Venue.name,
+      "venue_image_link":show.Venue.image_link,
       "start_time":str(show.start_time)
     })
 
   for show in past_shows:
-    venue=Venue.query.get(show.venue_id)
     past_shows_data.append({
-      "venue_id":venue.id,
-      "venue_name":venue.name,
-      "venue_image_link":venue.image_link,
+      "venue_id":show.Venue.id,
+      "venue_name":show.Venue.name,
+      "venue_image_link":show.Venue.image_link,
       "start_time":str(show.start_time)
     })
 
