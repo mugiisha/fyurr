@@ -19,7 +19,7 @@ from flask_wtf import Form
 from forms import *
 import sys
 
-# from models import db,Artist,Venue,Show
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -29,7 +29,7 @@ moment = Moment(app)
 app.config.from_object('config')
 
 #importing models from models.py
-from models import db,Artist,Venue,Show
+from Models import db,Artist,Venue,Show
 
 migrate=Migrate(app,db)
 # TODO: connect to a local postgresql database
