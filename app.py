@@ -29,10 +29,11 @@ moment = Moment(app)
 app.config.from_object('config')
 
 #importing models from models.py
-from Models import db,Artist,Venue,Show
+from models import db,Artist,Venue,Show
 
 migrate=Migrate(app,db)
 # TODO: connect to a local postgresql database
+db.init_app(app)
 
 
 
